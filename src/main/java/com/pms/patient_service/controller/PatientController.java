@@ -29,4 +29,10 @@ public class PatientController {
         PatientResponseDto patientResponseDto=patientService.savePatient(patientRequestDto);
         return ResponseEntity.ok().body(patientResponseDto);
     }
+
+    @PutMapping("/edit-patient")
+    public ResponseEntity<PatientResponseDto> editPatient(@Valid @RequestBody PatientRequestDto patientRequestDto){
+        PatientResponseDto patientResponseDto=patientService.editPatient(patientRequestDto);
+        return ResponseEntity.ok().body(patientResponseDto);
+    }
 }

@@ -10,12 +10,13 @@ import com.pms.patient_service.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class PatientServiceImpl implements PatientService {
+
     @Autowired
     private PatientRepository patientRepository;
 
@@ -35,11 +36,36 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDto savePatient(PatientRequestDto patientRequestDto) {
-        if(patientRepository.existByEmail(patientRequestDto.getEmail())){
-            throw new EmailAlreadyExistException("Email alreayd present");
+        if(patientRepository.existsByEmail(patientRequestDto.getEmail())){
+            throw new EmailAlreadyExistException("Email already present");
         }
         Patient patient=PatientMapper.toPatient(patientRequestDto);
         Patient savePatient=patientRepository.save(patient);
+        return PatientMapper.toPatientResponseDto(savePatient);
+    }
+
+    @Override
+    public PatientResponseDto editPatient(PatientRequestDto patientRequestDto) {
+        if(!patientRepository.existsByEmail(patientRequestDto.getEmail())){
+            throw new EmailAlreadyExistException("Email not present to edit");
+        }
+
+        Patient existingPatient = patientRepository.findByEmail(patientRequestDto.getEmail());
+
+        // Add this debug line
+        System.out.println("Existing patient registerDate: " + existingPatient.getRegisterDate());
+
+        existingPatient.setName(patientRequestDto.getName());
+        existingPatient.setDob(LocalDate.parse(patientRequestDto.getDob()));
+        existingPatient.setAddress(patientRequestDto.getAddress());
+        existingPatient.setEmail(patientRequestDto.getEmail());
+        existingPatient.setRegisterDate(LocalDate.parse(patientRequestDto.getRegisteredDate()));
+
+        // Add this debug line too
+        System.out.println("Before save registerDate: " + existingPatient.getRegisterDate());
+
+        Patient savePatient = patientRepository.save(existingPatient);
+
         return PatientMapper.toPatientResponseDto(savePatient);
     }
 }

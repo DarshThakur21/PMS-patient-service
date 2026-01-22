@@ -35,9 +35,11 @@ public class Patient {
     private String address;
 
     @NotNull
+    @Column(name = "dob")
     private LocalDate dob;
 
     @NotNull
+    @Column(name = "register_date",updatable = false)
     private LocalDate registerDate;
 
 
