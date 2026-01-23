@@ -3,12 +3,14 @@ package com.pms.patient_service.service.impl;
 import com.pms.patient_service.dto.PatientRequestDto;
 import com.pms.patient_service.dto.PatientResponseDto;
 import com.pms.patient_service.exception.EmailAlreadyExistException;
+import com.pms.patient_service.exception.PatientDoNotExist;
 import com.pms.patient_service.mapper.PatientMapper;
 import com.pms.patient_service.model.Patient;
 import com.pms.patient_service.repository.PatientRepository;
 import com.pms.patient_service.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -67,5 +69,15 @@ public class PatientServiceImpl implements PatientService {
         Patient savePatient = patientRepository.save(existingPatient);
 
         return PatientMapper.toPatientResponseDto(savePatient);
+    }
+
+    @Override
+    public void deleteById(String id) {
+        UUID uid=UUID.fromString(id);
+        Patient patient=patientRepository.findById(uid).orElseThrow();
+        if(ObjectUtils.isEmpty(patient)){
+            throw new PatientDoNotExist("No patient with this id present");
+        }
+        patientRepository.delete(patient);
     }
 }

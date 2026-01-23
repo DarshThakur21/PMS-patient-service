@@ -13,4 +13,6 @@ public interface PatientService {
     public  PatientResponseDto savePatient(PatientRequestDto patientRequestDto);
 
     PatientResponseDto editPatient( PatientRequestDto patientRequestDto);
+
+    void deleteById(String id);
 }

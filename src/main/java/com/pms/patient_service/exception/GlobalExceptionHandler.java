@@ -27,4 +27,12 @@ public class GlobalExceptionHandler
          errors.put("message","Email already present");
         return ResponseEntity.badRequest().body(errors);
     }
+    @ExceptionHandler(PatientDoNotExist.class)
+    public ResponseEntity<Map<String,String>> handlePatientDoNotExist(PatientDoNotExist ex){
+        log.warn("Patient do not exist for the deletion {}",ex.getMessage());
+        Map<String,String> errors=new HashMap<>();
+        errors.put("message","Patient not present");
+        return ResponseEntity.badRequest().body(errors);
+    }
+
 }
