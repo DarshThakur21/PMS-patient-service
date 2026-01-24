@@ -5,29 +5,64 @@ services:
     image: postgres:16
     container_name: postgres-db
     environment:
-      POSTGRES_DB: patient_service
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      TZ: UTC
-      PGTZ: UTC
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${POSTGRES_TZ}
+      PGTZ: ${POSTGRES_PGTZ}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    networks:
+      - internal-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
+    restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT}:80"
     depends_on:
       - postgres
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - internal-network
+
+  patient-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: patient-service:latest  # ← Name for the built image
+    container_name: patient-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO}
+      SPRING_JPA_SHOW_SQL: ${SHOW_SQL}
+    ports:
+      - "${APP_PORT}:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    networks:
+      - internal-network
+
+networks:
+  internal-network:
+    driver: bridge
 
 volumes:
-  postgres_data:
   pgadmin_data:
+
