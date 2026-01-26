@@ -50,12 +50,26 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO}
       SPRING_JPA_SHOW_SQL: ${SHOW_SQL}
+
+      BILLING_SERVICE_ADDRESS_LOCALHOST: billing-service
+      BILLING_SERVICE_GRPC_PORT: 9001
     ports:
       - "${APP_PORT}:4000"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - internal-network
 
+  billing-service:
+    build:
+      context: ../billing-service
+      dockerfile: Dockerfile
+    image: billing-service:latest
+    container_name: billing-service
+    ports:
+      - "4001:4001"
+      - "9001:9001"
     networks:
       - internal-network
 
