@@ -73,10 +73,53 @@ services:
     networks:
       - internal-network
 
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    ports:
+      - "${KAFKA_EXTERNAL_PORT}:${KAFKA_EXTERNAL_PORT}"
+    environment:
+      # KRaft mode
+      KAFKA_NODE_ID: ${KAFKA_NODE_ID}
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: ${KAFKA_NODE_ID}@kafka:${KAFKA_CONTROLLER_PORT}
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      CLUSTER_ID: ${CLUSTER_ID}
+
+      # Listeners
+      KAFKA_LISTENERS: >
+        PLAINTEXT://${KAFKA_INTERNAL_HOST}:${KAFKA_INTERNAL_PORT},
+        CONTROLLER://${KAFKA_INTERNAL_HOST}:${KAFKA_CONTROLLER_PORT},
+        EXTERNAL://0.0.0.0:${KAFKA_EXTERNAL_PORT}
+
+      KAFKA_ADVERTISED_LISTENERS: >
+        PLAINTEXT://${KAFKA_INTERNAL_HOST}:${KAFKA_INTERNAL_PORT},
+        EXTERNAL://${KAFKA_EXTERNAL_HOST}:${KAFKA_EXTERNAL_PORT}
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >
+        PLAINTEXT:PLAINTEXT,
+        CONTROLLER:PLAINTEXT,
+        EXTERNAL:PLAINTEXT
+
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      # Dev-friendly settings
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+    volumes:
+      - ${KAFKA_DATAPATH}:/var/lib/kafka/data
+
+    networks:
+      - internal-network
 networks:
   internal-network:
     driver: bridge
 
 volumes:
   pgadmin_data:
+  kafka_data:
 

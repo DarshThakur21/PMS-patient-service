@@ -33,5 +33,6 @@ build/
 .vscode/
 .env
 /pgdata
+/kafka
 
 /src/main/resources/application.properties
