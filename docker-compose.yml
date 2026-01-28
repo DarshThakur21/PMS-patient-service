@@ -53,6 +53,10 @@ services:
 
       BILLING_SERVICE_ADDRESS_LOCALHOST: billing-service
       BILLING_SERVICE_GRPC_PORT: 9001
+
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+
     ports:
       - "${APP_PORT}:4000"
     depends_on:
