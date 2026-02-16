@@ -34,5 +34,5 @@ build/
 .env
 /pgdata
 /kafka
-
+/authdata
 /src/main/resources/application.properties

@@ -146,6 +146,45 @@ services:
     networks:
       - internal-network
 
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    image: auth-service:latest
+    container_name: auth-service
+    ports:
+      - "4004:4004"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/auth_service
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO}
+      SPRING_JPA_SHOW_SQL: ${SHOW_SQL}
+
+    networks:
+      - internal-network
+
+  postgres-auth:
+    image: postgres:16
+    container_name: auth-service-db
+    environment:
+      POSTGRES_DB: auth_service
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${POSTGRES_TZ}
+      PGTZ: ${POSTGRES_PGTZ}
+    ports:
+      - "5433:5432"
+    volumes:
+      - D:/Project2/PMS/patient-management/patient-service/authdata:/var/lib/postgresql/data
+    networks:
+      - internal-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d auth_service" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
 
 networks:
