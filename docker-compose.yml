@@ -57,8 +57,8 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
 
-    ports:
-      - "${APP_PORT}:4000"
+#    ports:not exposing for open
+#      - "${APP_PORT}:4000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -132,6 +132,22 @@ services:
 
     networks:
       - internal-network
+
+  api-gateway:
+    build:
+      context: ../api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway:latest
+    container_name: api-gateway
+    ports:
+      - "4005:4005"
+#    environment:
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - internal-network
+
+
+
 networks:
   internal-network:
     driver: bridge
