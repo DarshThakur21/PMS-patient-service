@@ -141,7 +141,8 @@ services:
     container_name: api-gateway
     ports:
       - "4005:4005"
-#    environment:
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:4004
 #      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
       - internal-network
@@ -152,8 +153,8 @@ services:
       dockerfile: Dockerfile
     image: auth-service:latest
     container_name: auth-service
-    ports:
-      - "4004:4004"
+#    ports:
+##      - "4004:4004"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-auth:5432/auth_service
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
